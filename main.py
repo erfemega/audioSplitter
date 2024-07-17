@@ -43,20 +43,16 @@ COLUMNS = {
    'year': 'Año'
 }
 
-file_location = LOCATION_PATH
-excel_file = EXCEL_PATH
-initial_row = INITIAL_ROW
-
 print(f"""
   This script will use:
-      file location: {file_location}
-      excel file: {excel_file}
-      initial row: {initial_row}
+      file location: {LOCATION_PATH}
+      excel file: {EXCEL_PATH}
+      initial row: {INITIAL_ROW}
 """)
 
-rows_to_skip = list(range(1, initial_row - 1))
+rows_to_skip = list(range(1, INITIAL_ROW - 1))
 print('Step 1: Reading excel')
-df = pd.read_excel(excel_file, skiprows=rows_to_skip)
+df = pd.read_excel(EXCEL_PATH, skiprows=rows_to_skip)
 
 current_audio_identifier = ''
 current_audio_data = None
@@ -83,7 +79,7 @@ for i, row in (df.iterrows()):
     pathlib.Path(current_output_folder).mkdir(parents=True, exist_ok=True)
     print('\r')
     print(f"#### Creating files identifier: {identifier}")
-    current_audio_data = AudioSegment.from_wav(file_location + input_name)
+    current_audio_data = AudioSegment.from_wav(LOCATION_PATH + input_name)
   else:
      track_number = track_number + 1
 
