@@ -2,16 +2,11 @@ from pydub import AudioSegment
 import pandas as pd
 import sys
 import re
+import pathlib
+
+from local_config import LOCATION_PATH, EXCEL_PATH, INITIAL_ROW, OUTPUT_FOLDER
+
 sys.stdout.reconfigure(encoding='utf-8')
-
-################################# Configuration
-CONFIG = {
-   'location': '/Volumes/KINGSTON/',
-   'excel_name': 'hoja1.xlsx',
-   'initial_row': 132
-}
-################################# 
-
 
 def time_to_miliseconds(time):
     time_parts = time.split(':')
@@ -32,7 +27,7 @@ def time_to_miliseconds(time):
 def get_sub_track(current_audio_data, time_start, time_finish, output_base_name):
   [t1, formated_start] = time_to_miliseconds(time_start)
   [t2, formated_end] = time_to_miliseconds(time_finish)
-  output_name = f"tracks/{output_base_name}_{formated_start}.mp3"
+  output_name = f"{output_base_name}_{formated_start}.mp3"
   splittedAudio = current_audio_data[t1:t2]
   splittedAudio.export(output_name, format='mp3')
   return output_name
@@ -48,9 +43,9 @@ COLUMNS = {
    'year': 'Año'
 }
 
-file_location = CONFIG['location']
-excel_file = CONFIG['excel_name']
-initial_row = CONFIG['initial_row']
+file_location = LOCATION_PATH
+excel_file = EXCEL_PATH
+initial_row = INITIAL_ROW
 
 print(f"""
   This script will use:
@@ -66,6 +61,7 @@ df = pd.read_excel(excel_file, skiprows=rows_to_skip)
 current_audio_identifier = ''
 current_audio_data = None
 track_number = 0
+current_output_folder = ''
 print('Step2: Start row iteration')
 for i, row in (df.iterrows()):
   identifier = row[COLUMNS['identifier']]
@@ -83,13 +79,15 @@ for i, row in (df.iterrows()):
   if identifier != current_audio_identifier:
     track_number = 1
     current_audio_identifier = identifier
+    current_output_folder = f"{OUTPUT_FOLDER}/{identifier}/"
+    pathlib.Path(current_output_folder).mkdir(parents=True, exist_ok=True)
     print('\r')
     print(f"#### Creating files identifier: {identifier}")
     current_audio_data = AudioSegment.from_wav(file_location + input_name)
   else:
      track_number = track_number + 1
 
-  output_base_name = f"{handle_identifier(identifier)}_{year}_{str(track_number).zfill(2)}_{song_title}"
+  output_base_name = f"{current_output_folder}{handle_identifier(identifier)}_{year}_{str(track_number).zfill(2)}_{song_title}"
   print(f"Creating track number: {track_number}")
   
   output_name = get_sub_track(current_audio_data, start_time, end_time, output_base_name)
