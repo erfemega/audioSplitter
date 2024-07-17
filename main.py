@@ -68,7 +68,7 @@ for i, row in (df.iterrows()):
   start_time = row[COLUMNS['start']]
   end_time = row[COLUMNS['end']]
   year = row[COLUMNS['year']]
-  song_title = row[COLUMNS['song_title']].lower().replace(' ', '_')
+  song_title = row[COLUMNS['song_title']].lower().replace(' ', '_').split('/')[0]
 
   input_name = f"{handle_identifier(identifier)}_{str(year)}.wav"
 
